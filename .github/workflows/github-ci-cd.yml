@@ -1,0 +1,26 @@
+name: CI/CD
+
+on:
+  push:
+    paths:
+    - 'query.sql'
+  workflow_dispatch:
+
+jobs:
+  run-query:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run query
+        id: run-query 
+        run: |
+          mysql --user rfamro --host mysql-rfam-public.ebi.ac.uk --port 4497 --database Rfam -A < query.sql 2>result 1>result
+        continue-on-error: true
+      
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          force: true
